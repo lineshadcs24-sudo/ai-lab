@@ -1,0 +1,27 @@
+import random
+board = [" "] * 9
+wins = [(0,1,2),(3,4,5),(6,7,8),
+        (0,3,6),(1,4,7),(2,5,8),
+        (0,4,8),(2,4,6)]
+while True:
+    print(board[:3])
+    print(board[3:6])
+    print(board[6:])
+    n = int(input("Enter index (1-9): ")) - 1
+    if n < 0 or n > 8 or board[n] != " ":
+        print("Invalid or occupied!")
+        continue
+    board[n] = "X"
+    if any(all(board[i] == "X" for i in w) for w in wins):
+        print("You win!")
+        break
+    if " " not in board:
+        print("Draw!")
+        break
+    empty = [i for i in range(9) if board[i] == " "]
+    num = random.choice(empty)
+    board[num] = "O"
+    if any(all(board[i] == "O" for i in w) for w in wins):
+        print(board[:3], board[3:6], board[6:], sep="\n")
+        print("Computer wins!")
+        break
