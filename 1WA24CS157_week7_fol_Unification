@@ -1,0 +1,76 @@
+def unify(x, y, subst=None):
+    if subst is None:
+        subst = {}
+
+    if x == y:
+        return subst
+
+    if isinstance(x, str) and x in variables:
+        return unify_var(x, y, subst)
+
+    if isinstance(y, str) and y in variables:
+        return unify_var(y, x, subst)
+
+    if isinstance(x, tuple) and isinstance(y, tuple):
+        if x[0] != y[0] or len(x) != len(y):
+            return None
+
+        for a, b in zip(x[1:], y[1:]):
+            subst = unify(apply(a, subst), apply(b, subst), subst)
+
+            if subst is None:
+                return None
+
+        return subst
+
+    return None
+
+
+def apply(term, subst):
+    if isinstance(term, str) and term in subst:
+        return apply(subst[term], subst)
+
+    if isinstance(term, tuple):
+        return tuple(apply(t, subst) for t in term)
+
+    return term
+
+
+def unify_var(var, value, subst):
+    value = apply(value, subst)
+
+    if var in subst:
+        return unify(subst[var], value, subst)
+
+    if occurs(var, value, subst):
+        return None
+
+    subst[var] = value
+    return subst
+
+
+def occurs(var, term, subst):
+    term = apply(term, subst)
+
+    if var == term:
+        return True
+
+    if isinstance(term, tuple):
+        return any(occurs(var, t, subst) for t in term)
+
+    return False
+
+
+variables = {"x", "y", "z"}
+
+exp1 = ("Eats", "x", "Apple")
+exp2 = ("Eats", "Riya", "y")
+
+result = unify(exp1, exp2)
+
+if result is None:
+    print("Unification Failed")
+else:
+    print("Unification Successful")
+    print("Substitution:", result)
+    print("Unified Expression:", apply(exp1, result))
